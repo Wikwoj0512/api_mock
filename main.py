@@ -4,11 +4,13 @@ import threading
 import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
 
-HOST = "localhost"
+
+HOST = "0.0.0.0"
 DEBUG = False
+CONFIGURATION_FILE = 'mocoon.json'
 
 def main():
-    configuration = Configuration("C:\\Users\\Wiktor Wojtkowiak\\Desktop\\mocoon.json")
+    configuration = Configuration(f"mockoon_files/{CONFIGURATION_FILE}")
     environments = configuration.load_configuration()
 
     servers = [Server(HOST, DEBUG, environment) for environment in environments]
@@ -19,11 +21,6 @@ def main():
 
 
 def run(servers):
-    # threads = [multiprocessing.Process(target=server.run) for server in servers]
-    # for thread in threads:
-    #     thread.start()
-    # _ = [thread.join() for thread in threads]
-
     executor = ThreadPoolExecutor(max_workers=len(servers))
     for server in servers:
         executor.submit(server.run)

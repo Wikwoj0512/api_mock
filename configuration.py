@@ -1,34 +1,61 @@
 import json
 from flask import Flask, Response, jsonify
+from enum import Enum
+
+
+class StatusCode(Enum):
+    OK = "200"
+    NOT_FOUND = "404"
+
+class Method(Enum):
+    # GET = "get"
+    POST = "post"
 
 class Response:
     def __init__(self, status_code, body):
-        self.body = body
-        self.status_code = status_code
+        try:
+            self.body = body
+            self.status_code = StatusCode(status_code)
+        except ValueError as e:
+            print(f"Your config file passed invalid status code: {e}")
+            raise SystemExit
 
     def __repr__(self):
         return f"Response {self.status_code}: {self.body}"
 
     @classmethod
     def fromDict(cls, dict):
-        body = dict["body"]
-        statusCode = dict["statusCode"]
-        return cls(statusCode,body )
+        try:
+            body = dict["body"]
+            statusCode = StatusCode(dict["statusCode"])
+            return cls(statusCode,body )
+        except ValueError as e:
+            print(f"Your config file passed invalid status code: {e}")
+            raise SystemExit
+
 
 class Endpoint:
     def __init__(self, endpoint, method, responses):
-        self.endpoint = endpoint
-        self.method = method
-        self.responses = responses
+        try:
+            self.endpoint = endpoint
+            self.method = Method(method)
+            self.responses = responses
+        except ValueError as e:
+            print(f"Your config file passed invalid method: {e}")
+            raise SystemExit
 
     def __repr__(self):
         return f"Endpoint: \"{self.endpoint}\""
 
     @classmethod
     def fromDict(cls, dict,  responses):
-        endpoint = f"/{dict['endpoint']}"
-        method = dict["method"]
-        return cls(endpoint, method, responses)
+        try:
+            endpoint = f"/{dict['endpoint']}"
+            method = Method(dict["method"])
+            return cls(endpoint, method, responses)
+        except ValueError as e:
+            print(f"Your config file passed invalid method: {e}")
+            raise SystemExit
 
 
 class Environment:
@@ -77,15 +104,18 @@ class Server:
     def __init__(self, host, debug, environment):
         self.host = host
         self.debug = debug
-        self.environment = environment
+        self.port = environment.port
         self.endpoint_prefix = environment.endpoint_prefix
         self.endpoints = environment.endpoints
-        self.port = environment.port
-
     def setup(self):
         app = Flask(__name__)
 
-        view_maker = lambda body: (lambda: jsonify(eval(body)))
+        #funkcja służąca do zwrócenia funkcji view_func dla flaska. Używam tego + add_url_rule zamiast @app.route(), aby dodawać wszystkie endpointy z listy.
+        def view_maker(body):
+            def view_func():
+                rv = eval(body)
+                return jsonify(rv)
+            return view_func
 
         for endpoint in self.endpoints:
             prefix = self.endpoint_prefix
@@ -94,7 +124,7 @@ class Server:
             app.add_url_rule(
                 f"/{prefix}{endpoint.endpoint}",
                 endpoint.endpoint,
-                methods=[endpoint.method.upper()], #endpointy nie mogą się powtarzać -> dodanie warunków zwrocenia wartości do klasy, dodawanie wielu metod do 1 endpointu
+                methods=[endpoint.method.value.upper()], #endpointy nie mogą się powtarzać -> dodanie warunków zwrocenia wartości do klasy, dodawanie wielu metod do 1 endpointu
                 view_func=view_maker(response.body)
             )
         return app
