@@ -33,8 +33,3 @@ class FlaskTest(unittest.TestCase):
         for endpoint in endpoints:
             response = tester.get(endpoint)
             self.assertEqual("application/json", response.content_type)
-
-
-
-
-# flasktest = FlaskTest()
