@@ -1,10 +1,7 @@
-from configuration import Configuration, Server
-from multiprocessing.dummy import Pool as ThreadPool
-import threading
-import multiprocessing
+from models.configuration import Configuration
+from server import Server
 from concurrent.futures import ThreadPoolExecutor
-
-
+from models.logger import create_logger
 
 HOST = "0.0.0.0"
 DEBUG = False
@@ -14,12 +11,12 @@ CONFIGURATION_FILE = 'mocoon.json'
 
 def main():
     configuration = Configuration(f"mockoon_files/{CONFIGURATION_FILE}")
+    create_logger()
 
     environments = configuration.load_configuration()
-
     servers = [Server.factory(HOST, environment) for environment in environments]
-    apps = [server.setup() for server in servers]
-    return servers, apps
+
+    return servers
 
 
 
@@ -29,5 +26,5 @@ def run(servers):
         executor.submit(server.run)
 
 if __name__ == '__main__':
-    servers, apps = main()
+    servers = main()
     run(servers)
