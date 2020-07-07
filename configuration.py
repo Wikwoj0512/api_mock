@@ -1,6 +1,19 @@
 import json
 from flask import Flask, Response, jsonify, request
 from enum import Enum
+import logging
+
+def create_logger():
+    FORMAT = '%(asctime)-15s: %(levelname)s  %(message)s'
+    logger = logging.getLogger('spam_application')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler('conf_logs.log')
+    fh.setLevel(logging.DEBUG)
+    logger = logging.getLogger()
+    formatter = logging.Formatter(FORMAT)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    return logger
 
 
 class StatusCode(Enum):
@@ -8,8 +21,8 @@ class StatusCode(Enum):
     NOT_FOUND = "404"
 
 class Method(Enum):
-    GET = "get"
-    POST = "post"
+    GET = "GET"
+    POST = "POST"
 
 class Response:
     def __init__(self, status_code, body, method):
@@ -17,11 +30,12 @@ class Response:
         try:
             self.status_code = StatusCode(status_code)
         except ValueError as e:
-            print(f"Your config file passed invalid status code: {e}")#logi
+            logger.error(f"Your config file passed invalid status code: {e}")
             raise SystemExit
         try:
-            self.method = Method(method)
+            self.method = Method(method.upper())
         except:
+            logger.error(f"Your config file passed invalid method: {e}")
             raise SystemExit
 
     def __repr__(self):
@@ -55,7 +69,6 @@ class Endpoint:
     @classmethod
     def responseFromDict(cls, dic):
         response = dic["responses"][0]
-        # print(dic["responses"])
         return Response.fromDict(response, dic["method"])
 
 
@@ -80,6 +93,8 @@ class Environment:
 
 
 class Configuration:
+    global logger
+    logger = create_logger()
     def __init__(self, path):
         self.path = path
 
@@ -101,7 +116,6 @@ class Configuration:
                         used = True
                         endpoint.responses.append(Endpoint.responseFromDict(route))
                 if not used: endpoints.append(Endpoint.fromDict(route))
-            # print(endpoints)
 
             environments.append(Environment.fromDict(item, endpoints))
 
@@ -128,7 +142,7 @@ class Server:
             def view_func():
 
                 for response in responses:
-                    if request.method == response.method.value.upper():
+                    if request.method == response.method.value:
                         return jsonify(eval(response.body))
                 return Response(status_code=404)
             return view_func
@@ -138,8 +152,7 @@ class Server:
         for endpoint in self.endpoints:
             prefix = self.endpoint_prefix
             responses = endpoint.responses
-            methods = [response.method.value.upper() for response in responses] #endpointy nie mogą się powtarzać -> dodanie warunków zwrocenia wartości do klasy, dodawanie wielu metod do 1 endpointu
-            # print(self.endpoints)/
+            methods = [response.method.value for response in responses] #endpointy nie mogą się powtarzać -> dodanie warunków zwrocenia wartości do klasy, dodawanie wielu metod do 1 endpointu
             app.add_url_rule(
                 f"/{prefix}{endpoint.endpoint}",
                 endpoint.endpoint,
