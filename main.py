@@ -19,7 +19,6 @@ def main():
 
     servers = [Server.factory(HOST, environment) for environment in environments]
     apps = [server.setup() for server in servers]
-    print(1)
     return servers, apps
 
 
@@ -31,5 +30,4 @@ def run(servers):
 
 if __name__ == '__main__':
     servers, apps = main()
-    print(servers)
     run(servers)
