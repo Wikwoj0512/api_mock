@@ -7,13 +7,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 HOST = "0.0.0.0"
 DEBUG = False
-CONFIGURATION_FILE = 'mocoon.json'
+CONFIGURATION_FILE = 'more_responses.json'
 
 def main():
     configuration = Configuration(f"mockoon_files/{CONFIGURATION_FILE}")
     environments = configuration.load_configuration()
 
-    servers = [Server(HOST, DEBUG, environment) for environment in environments]
+    servers = [Server.factory(HOST, environment) for environment in environments]
     apps = [server.setup() for server in servers]
 
     return servers, apps
