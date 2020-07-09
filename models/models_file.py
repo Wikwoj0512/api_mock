@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import List
+
 import logging
 from enum import Enum
 
-from typing import List
 
 logger = logging.getLogger("main")
 
@@ -34,15 +38,15 @@ class Response:
         return f"Response {self.method} {self.status_code}: {self.body}"
 
     @classmethod
-    def fromDict(cls, dic: dict, method) -> object:
-        body = dic["body"]
-        statusCode = dic["statusCode"]
+    def fromDict(cls, data: dict, method: str) -> object:
+        body = data["body"]
+        statusCode = data["statusCode"]
         method = method
         return cls(statusCode, body, method)
 
 
 class Endpoint:
-    def __init__(self, endpoint, responses) -> None:
+    def __init__(self, endpoint: str, responses: "List[Response]") -> None:
         self.responses = responses
         self.endpoint = endpoint
 
@@ -50,20 +54,20 @@ class Endpoint:
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
 
     @classmethod
-    def fromDict(cls, dic: dict) -> object:
-        endpoint = f"/{dic['endpoint']}"
-        response = dic["responses"][0]
-        responses = [Response.fromDict(response, dic["method"])]
+    def fromDict(cls, data: dict) -> object:
+        endpoint = f"/{data['endpoint']}"
+        response = data["responses"][0]
+        responses = [Response.fromDict(response, data["method"])]
         return cls(endpoint, responses)
 
     @classmethod
-    def responseFromDict(cls, dic: dict) -> object:
-        response = dic["responses"][0]
-        return Response.fromDict(response, dic["method"])
+    def responseFromDict(cls, data: dict) -> object:
+        response = data["responses"][0]
+        return Response.fromDict(response, data["method"])
 
 
 class Environment:
-    def __init__(self, name: str, endpoint_prefix: str, port: int, endpoints: List[Endpoint]) -> None:
+    def __init__(self, name: str, endpoint_prefix: str, port: int, endpoints: 'List[Endpoint]') -> None:
         self.name = name
         self.endpoint_prefix = endpoint_prefix
         self.port = port
@@ -73,7 +77,7 @@ class Environment:
         return f"Environment: \"{self.name}\""
 
     @classmethod
-    def fromDict(cls, dict: dict, endpoints: List[Endpoint]) -> object:
+    def fromDict(cls, dict: dict, endpoints: 'List[Endpoint]') -> object:
         name = dict['name']
         endpointPrefix = dict['endpointPrefix']
         port = dict['port']

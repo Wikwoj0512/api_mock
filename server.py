@@ -1,14 +1,20 @@
 import logging
-from typing import List
+
+from typing import TYPE_CHECKING
+
+
 
 from flask import Flask, Response, jsonify, request
 
 from models.logger import create_logger
-from models.models_file import Environment, Response, Endpoint
 
+
+if TYPE_CHECKING:
+    from typing import List
+    from models.models_file import Environment, Response, Endpoint
 
 class Server:
-    def __init__(self, host: str, port: int, endpoint_prefix: str, endpoints: List[Endpoint], name: str,
+    def __init__(self, host: str, port: int, endpoint_prefix: str, endpoints: 'List[Endpoint]', name: str,
                  debug=False) -> None:
         self.host = host
         self.debug = debug
@@ -18,14 +24,14 @@ class Server:
         self.name = name.replace(" ", "_")
 
     @classmethod
-    def factory(cls, host: str, environment: Environment, debug=False) -> object:
+    def factory(cls, host: str, environment: 'Environment', debug=False) -> object:
         return cls(host, environment.port, environment.endpoint_prefix, environment.endpoints, environment.name, debug)
 
     def setup(self):
         app = Flask(self.name)
 
         # funkcja służąca do zwrócenia funkcji view_func dla flaska. Używam tego + add_url_rule zamiast @app.route(), aby dodawać wszystkie endpointy z listy.
-        def view_maker(responses: List[Response]) -> object:
+        def view_maker(responses: 'List[Response]') -> object:
             def view_func():
                 for response in responses:
                     if request.method == response.method.value:
