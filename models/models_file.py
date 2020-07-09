@@ -43,7 +43,7 @@ class Response:
         body = data["body"]
         statusCode = data["statusCode"]
         method = method
-        latency = dict["latency"]
+        latency = data["latency"]
         return cls(statusCode, body, method, latency)
 
 
