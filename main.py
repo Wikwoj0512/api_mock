@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+from concurrent.futures import ProcessPoolExecutor
 
 from models.configuration import Configuration
 from models.logger import create_logger
@@ -23,10 +24,9 @@ def main():
 
 
 def run(servers):
-    threads = [multiprocessing.Process(target=server.run) for server in servers]
-    for thread in threads:
-        thread.start()
-    [thread.join() for thread in threads]
+    executor = ProcessPoolExecutor(max_workers=len(servers))
+    for server in servers:
+        executor.submit(server.run)
 
 
 if __name__ == '__main__':
