@@ -1,7 +1,6 @@
-import json
 import logging
+from time import sleep
 
-from enum import Enum
 from flask import Flask, Response, jsonify, request
 
 from models.logger import create_logger
@@ -26,9 +25,9 @@ class Server:
         # funkcja służąca do zwrócenia funkcji view_func dla flaska. Używam tego + add_url_rule zamiast @app.route(), aby dodawać wszystkie endpointy z listy.
         def view_maker(responses):
             def view_func():
-
                 for response in responses:
                     if request.method == response.method.value:
+                        sleep(response.latency/1000)
                         return jsonify(eval(response.body))
                 return Response(status_code=404)
 

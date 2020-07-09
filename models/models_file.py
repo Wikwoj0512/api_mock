@@ -15,9 +15,10 @@ class Method(Enum):
 
 
 class Response:
-    def __init__(self, status_code, body, method):
+    def __init__(self, status_code, body, method, latency):
 
         self.body = body
+        self.latency = latency
         try:
             self.status_code = StatusCode(status_code)
         except ValueError as e:
@@ -30,14 +31,15 @@ class Response:
             raise SystemExit
 
     def __repr__(self):
-        return f"Response {self.method} {self.status_code}: {self.body}"
+        return f"Response {self.method} after {self.latency} {self.status_code}: {self.body}"
 
     @classmethod
     def fromDict(cls, dict, method):
         body = dict["body"]
         statusCode = dict["statusCode"]
         method = method
-        return cls(statusCode, body, method)
+        latency = dict["latency"]
+        return cls(statusCode, body, method, latency)
 
 
 class Endpoint:
