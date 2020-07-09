@@ -1,5 +1,6 @@
-from .models import Environment, Endpoint
 import json
+
+from .models_file import Endpoint, Environment
 
 class Configuration:
     def __init__(self, path):

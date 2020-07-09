@@ -1,14 +1,18 @@
-from enum import Enum
 import logging
+from enum import Enum
+
 logger = logging.getLogger("main")
+
 
 class StatusCode(Enum):
     OK = "200"
     NOT_FOUND = "404"
 
+
 class Method(Enum):
     GET = "GET"
     POST = "POST"
+
 
 class Response:
     def __init__(self, status_code, body, method):
@@ -17,12 +21,12 @@ class Response:
         try:
             self.status_code = StatusCode(status_code)
         except ValueError as e:
-            logger.error(f"Your config file passed invalid status code: {e}")
+            logger.error("Your config file passed invalid status code: %s", e)
             raise SystemExit
         try:
             self.method = Method(method.upper())
         except ValueError as e:
-            logger.error(f"Your config file passed invalid method: {e}")
+            logger.error("Your config file passed invalid method: %s", e)
             raise SystemExit
 
     def __repr__(self):
@@ -37,17 +41,15 @@ class Response:
 
 
 class Endpoint:
-    def __init__(self, endpoint,  responses):
+    def __init__(self, endpoint, responses):
         self.responses = responses
         self.endpoint = endpoint
-
 
     def __repr__(self):
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
 
     @classmethod
     def fromDict(cls, dict):
-
         endpoint = f"/{dict['endpoint']}"
         response = dict["responses"][0]
         responses = [Response.fromDict(response, dict["method"])]
@@ -74,4 +76,4 @@ class Environment:
         name = dict['name']
         endpointPrefix = dict['endpointPrefix']
         port = dict['port']
-        return cls (name, endpointPrefix, port, endpoints)
+        return cls(name, endpointPrefix, port, endpoints)

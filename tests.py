@@ -7,6 +7,7 @@ except Exception as e:
 servers, apps = main()
 app = apps[0]
 
+
 class FlaskTest(unittest.TestCase):
     # check for response 200
     def test_index(self):
@@ -22,14 +23,14 @@ class FlaskTest(unittest.TestCase):
 
     def test_all_endpoints(self):
         tester = app.test_client(self)
-        endpoints = ["/api/",'/api/test1',"api/test2"]
+        endpoints = ["/api/", '/api/test1', "api/test2"]
         for endpoint in endpoints:
             response = tester.get(endpoint)
             self.assertEqual(200, response.status_code)
 
     def test_all_endpoints_content(self):
         tester = app.test_client(self)
-        endpoints = ["/api/",'/api/test1',"api/test2"]
+        endpoints = ["/api/", '/api/test1', "api/test2"]
         for endpoint in endpoints:
             response = tester.get(endpoint)
             self.assertEqual("application/json", response.content_type)
