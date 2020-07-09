@@ -1,7 +1,7 @@
 import logging
 
 
-def create_logger(name="main"):
+def create_logger(name="main") -> logging.Logger:
     FORMAT = '%(asctime)-15s: %(levelname)s %(message)s'
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)

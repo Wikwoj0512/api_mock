@@ -1,5 +1,11 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import List
+
 import logging
 from enum import Enum
+
 
 logger = logging.getLogger("main")
 
@@ -15,8 +21,7 @@ class Method(Enum):
 
 
 class Response:
-    def __init__(self, status_code, body, method, latency):
-
+    def __init__(self, status_code: str, body: str, method: str, latency: int) -> None:
         self.body = body
         self.latency = latency
         try:
@@ -30,51 +35,51 @@ class Response:
             logger.error("Your config file passed invalid method: %s", e)
             raise SystemExit
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Response {self.method} after {self.latency} {self.status_code}: {self.body}"
 
     @classmethod
-    def fromDict(cls, dict, method):
-        body = dict["body"]
-        statusCode = dict["statusCode"]
+    def fromDict(cls, data: dict, method: str) -> object:
+        body = data["body"]
+        statusCode = data["statusCode"]
         method = method
         latency = dict["latency"]
         return cls(statusCode, body, method, latency)
 
 
 class Endpoint:
-    def __init__(self, endpoint, responses):
+    def __init__(self, endpoint: str, responses: "List[Response]") -> None:
         self.responses = responses
         self.endpoint = endpoint
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
 
     @classmethod
-    def fromDict(cls, dict):
-        endpoint = f"/{dict['endpoint']}"
-        response = dict["responses"][0]
-        responses = [Response.fromDict(response, dict["method"])]
+    def fromDict(cls, data: dict) -> object:
+        endpoint = f"/{data['endpoint']}"
+        response = data["responses"][0]
+        responses = [Response.fromDict(response, data["method"])]
         return cls(endpoint, responses)
 
     @classmethod
-    def responseFromDict(cls, dic):
-        response = dic["responses"][0]
-        return Response.fromDict(response, dic["method"])
+    def responseFromDict(cls, data: dict) -> object:
+        response = data["responses"][0]
+        return Response.fromDict(response, data["method"])
 
 
 class Environment:
-    def __init__(self, name, endpoint_prefix, port, endpoints):
+    def __init__(self, name: str, endpoint_prefix: str, port: int, endpoints: 'List[Endpoint]') -> None:
         self.name = name
         self.endpoint_prefix = endpoint_prefix
         self.port = port
         self.endpoints = endpoints
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Environment: \"{self.name}\""
 
     @classmethod
-    def fromDict(cls, dict, endpoints):
+    def fromDict(cls, dict: dict, endpoints: 'List[Endpoint]') -> object:
         name = dict['name']
         endpointPrefix = dict['endpointPrefix']
         port = dict['port']
