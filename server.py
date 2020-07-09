@@ -1,14 +1,15 @@
-import json
 import logging
+from typing import List
 
-from enum import Enum
 from flask import Flask, Response, jsonify, request
 
 from models.logger import create_logger
+from models.models_file import Environment, Response, Endpoint
 
 
 class Server:
-    def __init__(self, host, port, endpoint_prefix, endpoints, name, debug=False):
+    def __init__(self, host: str, port: int, endpoint_prefix: str, endpoints: List[Endpoint], name: str,
+                 debug=False) -> None:
         self.host = host
         self.debug = debug
         self.port = port
@@ -17,16 +18,15 @@ class Server:
         self.name = name.replace(" ", "_")
 
     @classmethod
-    def factory(cls, host, environment, debug=False):
+    def factory(cls, host: str, environment: Environment, debug=False) -> object:
         return cls(host, environment.port, environment.endpoint_prefix, environment.endpoints, environment.name, debug)
 
     def setup(self):
         app = Flask(self.name)
 
         # funkcja służąca do zwrócenia funkcji view_func dla flaska. Używam tego + add_url_rule zamiast @app.route(), aby dodawać wszystkie endpointy z listy.
-        def view_maker(responses):
+        def view_maker(responses: List[Response]) -> object:
             def view_func():
-
                 for response in responses:
                     if request.method == response.method.value:
                         return jsonify(eval(response.body))
@@ -47,13 +47,13 @@ class Server:
             )
         return app
 
-    def run(self):
+    def run(self) -> None:
         app = self.setup()
         try:
             create_logger(self.name)
         except FileNotFoundError as e:
             create_logger()
             logger = logging.getLogger()
-            logger.error("Invalid environment name \"%s\": %s",self.name, e)
+            logger.error("Invalid environment name \"%s\": %s", self.name, e)
             raise SystemExit
         app.run(self.host, self.port, self.debug)

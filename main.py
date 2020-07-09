@@ -1,6 +1,6 @@
-import multiprocessing
 import os
 from concurrent.futures import ProcessPoolExecutor
+from typing import List
 
 from models.configuration import Configuration
 from models.logger import create_logger
@@ -13,7 +13,7 @@ DEBUG = False
 CONFIGURATION_FILE = 'znaki.json'
 
 
-def main():
+def main() -> List[Server]:
     create_logger()
 
     configuration = Configuration(f"mockoon_files/{CONFIGURATION_FILE}")
@@ -23,7 +23,7 @@ def main():
     return servers
 
 
-def run(servers):
+def run(servers: List[Server]) -> None:
     executor = ProcessPoolExecutor(max_workers=len(servers))
     for server in servers:
         executor.submit(server.run)

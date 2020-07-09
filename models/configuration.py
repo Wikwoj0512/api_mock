@@ -1,12 +1,14 @@
 import json
+from typing import List
 
 from .models_file import Endpoint, Environment
 
+
 class Configuration:
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self.path = path
 
-    def load_configuration(self):
+    def load_configuration(self) -> List[Environment]:
         with open(self.path, "r") as f:
             conf = json.load(f)
 

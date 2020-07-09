@@ -1,6 +1,8 @@
 import logging
 from enum import Enum
 
+from typing import List
+
 logger = logging.getLogger("main")
 
 
@@ -15,8 +17,7 @@ class Method(Enum):
 
 
 class Response:
-    def __init__(self, status_code, body, method):
-
+    def __init__(self, status_code: str, body: str, method: str) -> None:
         self.body = body
         try:
             self.status_code = StatusCode(status_code)
@@ -29,50 +30,50 @@ class Response:
             logger.error("Your config file passed invalid method: %s", e)
             raise SystemExit
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Response {self.method} {self.status_code}: {self.body}"
 
     @classmethod
-    def fromDict(cls, dict, method):
-        body = dict["body"]
-        statusCode = dict["statusCode"]
+    def fromDict(cls, dic: dict, method) -> object:
+        body = dic["body"]
+        statusCode = dic["statusCode"]
         method = method
         return cls(statusCode, body, method)
 
 
 class Endpoint:
-    def __init__(self, endpoint, responses):
+    def __init__(self, endpoint, responses) -> None:
         self.responses = responses
         self.endpoint = endpoint
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
 
     @classmethod
-    def fromDict(cls, dict):
-        endpoint = f"/{dict['endpoint']}"
-        response = dict["responses"][0]
-        responses = [Response.fromDict(response, dict["method"])]
+    def fromDict(cls, dic: dict) -> object:
+        endpoint = f"/{dic['endpoint']}"
+        response = dic["responses"][0]
+        responses = [Response.fromDict(response, dic["method"])]
         return cls(endpoint, responses)
 
     @classmethod
-    def responseFromDict(cls, dic):
+    def responseFromDict(cls, dic: dict) -> object:
         response = dic["responses"][0]
         return Response.fromDict(response, dic["method"])
 
 
 class Environment:
-    def __init__(self, name, endpoint_prefix, port, endpoints):
+    def __init__(self, name: str, endpoint_prefix: str, port: int, endpoints: List[Endpoint]) -> None:
         self.name = name
         self.endpoint_prefix = endpoint_prefix
         self.port = port
         self.endpoints = endpoints
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Environment: \"{self.name}\""
 
     @classmethod
-    def fromDict(cls, dict, endpoints):
+    def fromDict(cls, dict: dict, endpoints: List[Endpoint]) -> object:
         name = dict['name']
         endpointPrefix = dict['endpointPrefix']
         port = dict['port']
