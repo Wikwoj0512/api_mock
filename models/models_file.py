@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 import logging
 from enum import Enum
 
+import re
 
 logger = logging.getLogger("main")
 
@@ -57,7 +58,7 @@ class Endpoint:
 
     @classmethod
     def fromDict(cls, data: dict) -> object:
-        endpoint = f"/{data['endpoint']}"
+        endpoint = cls.adapt_route(data['endpoint'])
         response = data["responses"][0]
         responses = [Response.fromDict(response, data["method"])]
         return cls(endpoint, responses)
@@ -66,6 +67,15 @@ class Endpoint:
     def responseFromDict(cls, data: dict) -> object:
         response = data["responses"][0]
         return Response.fromDict(response, data["method"])
+
+    @classmethod
+    def adapt_route(cls, route: str) -> str:
+        name_allowed = "A-z0-9_"
+        params_search = re.compile(f"(:[{name_allowed}]+)")
+        params = params_search.findall(route)
+        for param in params:
+            route = route.replace(param, f"<{param[1:]}>", 1)
+        return f"/{route}"
 
 
 class Environment:
