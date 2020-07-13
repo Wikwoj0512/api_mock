@@ -1,3 +1,4 @@
+import logging
 import os
 from concurrent.futures import ProcessPoolExecutor
 from typing import TYPE_CHECKING
@@ -13,7 +14,7 @@ if "logs" not in os.listdir(): os.mkdir("logs")
 
 HOST = "0.0.0.0"
 DEBUG = False
-CONFIGURATION_FILE = 'znaki.json'
+CONFIGURATION_FILE = 'mockoon_configuration.json'
 
 
 def main() -> 'List[Server]':
@@ -33,5 +34,14 @@ def run(servers: 'List[Server]') -> None:
 
 
 if __name__ == '__main__':
-    servers = main()
-    run(servers)
+    create_logger()
+    logger = logging.getLogger()
+
+    try:
+        servers = main()
+    except Exception as e:
+        logger.error("Undefined error in main(): %s", e)
+    try:
+        run(servers)
+    except Exception as e:
+        logger.error("Undefined error in run(): %s", e)

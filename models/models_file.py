@@ -1,14 +1,28 @@
+import logging
+import re
+from enum import Enum
+from time import sleep
 from typing import TYPE_CHECKING
+
+from flask import request, jsonify
 
 if TYPE_CHECKING:
     from typing import List
 
-import logging
-from enum import Enum
-
-import re
-
 logger = logging.getLogger("main")
+
+
+class ReSearching():
+    param_search = re.compile("(\{\{ *([A-z0-9_]+){1}( *'[A-z0-9._]+'){1} *('[\S ]+')* *\}\})")
+    keywords_search = re.compile("(\{\{ *([A-z0-9_]+) *\}\})")
+
+    @classmethod
+    def search_keywoards(cls, string: str) -> 'List[str]':
+        return cls.keywords_search.findall(string)
+
+    @classmethod
+    def search_params(cls, string: str) -> 'List[str]':
+        return cls.param_search.findall(string)
 
 
 class StatusCode(Enum):
@@ -51,7 +65,7 @@ class Response:
 class Endpoint:
     def __init__(self, endpoint: str, responses: "List[Response]") -> None:
         self.responses = responses
-        self.endpoint = endpoint
+        self.endpoint = "/" + endpoint
 
     def __repr__(self) -> str:
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
@@ -75,7 +89,34 @@ class Endpoint:
         params = params_search.findall(route)
         for param in params:
             route = route.replace(param, f"<{param[1:]}>", 1)
-        return f"/{route}"
+        return route
+
+    def view_maker(self) -> object:
+        def view_func(*args, **kwargs):
+            for response in self.responses:
+                if request.method == response.method.value:
+                    sleep(response.latency / 1000)
+                    body = response.body
+                    param_dict = {"urlParam": kwargs, "queryParam": request.args}
+                    params = ReSearching.search_params(body)
+                    for param in params:
+                        total = param[0]
+                        type = param[1]
+                        var_name = param[2].replace(" ", "").replace("'", "")
+                        default = param[3]
+                        replacement = (
+                            param_dict[type][var_name] if var_name in param_dict[type] else default[1:-1])
+                        body = body.replace(total, replacement, 1)
+                    kwargs_dict = {"method": request.method, "hostname": request.host, "ip": request.remote_addr}
+                    kwparams = ReSearching.search_keywoards(body)
+                    for kwparam in kwparams:
+                        total = kwparam[0]
+                        name = kwparam[1]
+                        if name in kwargs_dict: body = body.replace(total, kwargs_dict[name], 1)
+                    return jsonify(eval(body))
+            return Response(status_code=404)
+
+        return view_func
 
 
 class Environment:
