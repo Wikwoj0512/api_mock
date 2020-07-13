@@ -5,6 +5,7 @@ from time import sleep
 from typing import TYPE_CHECKING
 
 from flask import request, jsonify
+from yaml import load, Loader
 
 if TYPE_CHECKING:
     from typing import List
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger("main")
 
 
-class ReSearching():
+class ReSearching:
     param_search = re.compile("(\{\{ *([A-z0-9_]+){1}( *'[A-z0-9._]+'){1} *('[\S ]+')* *\}\})")
     keywords_search = re.compile("(\{\{ *([A-z0-9_]+) *\}\})")
 
@@ -23,6 +24,26 @@ class ReSearching():
     @classmethod
     def search_params(cls, string: str) -> 'List[str]':
         return cls.param_search.findall(string)
+
+
+class Config:
+    def __init__(self, mockoon_file, flask_debug, logging_level):
+        self.mockoon_file = mockoon_file
+        self.flask_debug = flask_debug
+        self.logging_level = logging_level
+
+    @classmethod
+    def fromDict(cls, data: dict) -> object:
+        mockoon_file = data["mockoon_file"]
+        flask_debug = data["flask_debug"]
+        logging_level = data['logging_level']
+        return cls(mockoon_file, flask_debug, logging_level)
+
+    @classmethod
+    def fromFile(cls, path="config.yaml"):
+        with open(path) as f:
+            config = load(f, Loader=Loader)
+        return cls.fromDict(config)
 
 
 class StatusCode(Enum):
@@ -102,10 +123,10 @@ class Endpoint:
                     for param in params:
                         total = param[0]
                         type = param[1]
-                        var_name = param[2].replace(" ", "").replace("'", "")
-                        default = param[3]
+                        var_name = param[2].strip()[1:-1]
+                        default = param[3][1:-1]
                         replacement = (
-                            param_dict[type][var_name] if var_name in param_dict[type] else default[1:-1])
+                            param_dict[type][var_name] if var_name in param_dict[type] else default)
                         body = body.replace(total, replacement, 1)
                     kwargs_dict = {"method": request.method, "hostname": request.host, "ip": request.remote_addr}
                     kwparams = ReSearching.search_keywoards(body)

@@ -12,17 +12,18 @@ if TYPE_CHECKING:
 
 class Server:
     def __init__(self, host: str, port: int, endpoint_prefix: str, endpoints: 'List[Endpoint]', name: str,
-                 debug=False) -> None:
+                 debug=False, logging_level = "INFO") -> None:
         self.host = host
         self.debug = debug
         self.port = port
         self.endpoint_prefix = endpoint_prefix
         self.endpoints = endpoints
         self.name = name.replace(" ", "_")
+        self.logging_level = logging_level
 
     @classmethod
-    def factory(cls, host: str, environment: 'Environment', debug=False) -> object:
-        return cls(host, environment.port, environment.endpoint_prefix, environment.endpoints, environment.name, debug)
+    def factory(cls, host: str, environment: 'Environment', debug=False, logging_level = "INFO") -> object:
+        return cls(host, environment.port, environment.endpoint_prefix, environment.endpoints, environment.name, debug, logging_level)
 
     def setup(self):
         app = Flask(self.name)
@@ -43,7 +44,7 @@ class Server:
     def run(self) -> None:
         app = self.setup()
         try:
-            create_logger(self.name)
+            create_logger(self.name, level = self.logging_level)
         except FileNotFoundError as e:
             create_logger()
             logger = logging.getLogger()

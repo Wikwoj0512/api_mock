@@ -1,0 +1,3 @@
+mockoon_file: mockoon_files/mockoon_configuration.json
+flask_debug: true
+logging_level: DEBUG
