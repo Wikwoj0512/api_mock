@@ -27,17 +27,19 @@ class ReSearching:
 
 
 class Config:
-    def __init__(self, mockoon_file, flask_debug, logging_level):
+    def __init__(self, mockoon_file, flask_debug, logging_level, host):
         self.mockoon_file = mockoon_file
         self.flask_debug = flask_debug
         self.logging_level = logging_level
+        self.host = host
 
     @classmethod
     def fromDict(cls, data: dict) -> object:
         mockoon_file = data["mockoon_file"]
         flask_debug = data["flask_debug"]
         logging_level = data['logging_level']
-        return cls(mockoon_file, flask_debug, logging_level)
+        host = data['host_addr']
+        return cls(mockoon_file, flask_debug, logging_level, host)
 
     @classmethod
     def fromFile(cls, path="config.yaml"):

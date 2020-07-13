@@ -10,3 +10,4 @@ def create_logger(name="main", level = "DEBUG") -> logging.Logger:
     formatter = logging.Formatter(FORMAT)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
+    return logger

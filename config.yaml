@@ -1,3 +1,4 @@
 mockoon_file: mockoon_files/mockoon_configuration.json
 flask_debug: true
 logging_level: DEBUG
+host_addr: 0.0.0.0

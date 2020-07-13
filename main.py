@@ -13,9 +13,6 @@ if TYPE_CHECKING:
 
 if "logs" not in os.listdir(): os.mkdir("logs")
 
-HOST = "0.0.0.0"
-DEBUG = False
-
 config = Config.fromFile("config.yaml")
 
 
@@ -37,8 +34,7 @@ def run(servers: 'List[Server]') -> None:
 
 
 if __name__ == '__main__':
-    create_logger(level=config.logging_level)
-    logger = logging.getLogger()
+    logger =create_logger(level=config.logging_level)
 
     try:
         servers = main()
