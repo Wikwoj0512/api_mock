@@ -7,8 +7,13 @@ from typing import TYPE_CHECKING
 from flask import request, jsonify
 from yaml import load, Loader
 
+from .logger import create_logger
+from .logging_levels import LOGGING_LEVELS
+
 if TYPE_CHECKING:
     from typing import List
+
+from typing import List
 
 logger = logging.getLogger("main")
 
@@ -26,7 +31,7 @@ class ReSearching:
         return cls.param_search.findall(string)
 
 
-class Config:
+class AppConfiguration:
     def __init__(self, mockoon_file, flask_debug, logging_level, host):
         self.mockoon_file = mockoon_file
         self.flask_debug = flask_debug
@@ -35,16 +40,33 @@ class Config:
 
     @classmethod
     def fromDict(cls, data: dict) -> object:
-        mockoon_file = data["mockoon_file"]
-        flask_debug = data["flask_debug"]
-        logging_level = data['logging_level']
-        host = data['host_addr']
+        mockoon_file = data.get("mockoon_file", "mockoon_files/mockoon_configuration.json", )
+        flask_debug = data.get("flask_debug", False)
+
+        logging_level = data.get('logging_level', logging.INFO)
+        if type(logging_level) == str:
+            logging_level = LOGGING_LEVELS.get(logging_level, logging.INFO)
+        if logging_level is None:
+            logging_level = logging.INFO
+
+        host = data.get('host_addr', "0.0.0.0")
+        default_keys = ["mockoon_file", "flask_debug", 'logging_level', 'host_addr']
+        logger = create_logger()
+        for key in default_keys:
+            if key not in data.keys():
+                logger.info("Key missing: %s, loading from default", key)
+
         return cls(mockoon_file, flask_debug, logging_level, host)
 
     @classmethod
     def fromFile(cls, path="config.yaml"):
-        with open(path) as f:
-            config = load(f, Loader=Loader)
+        try:
+            with open(path) as f:
+                config = load(f, Loader=Loader)
+        except FileNotFoundError:
+            logger = create_logger()
+            logger.error("Configuration file not found. Starting from defaults")
+            config = {}
         return cls.fromDict(config)
 
 
@@ -136,7 +158,7 @@ class Endpoint:
                         total = kwparam[0]
                         name = kwparam[1]
                         if name in kwargs_dict: body = body.replace(total, kwargs_dict[name], 1)
-                    return jsonify(eval(body))
+                    return jsonify(eval(body)), response.status_code.value
             return Response(status_code=404)
 
         return view_func

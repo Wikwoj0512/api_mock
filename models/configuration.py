@@ -6,7 +6,8 @@ from .models_file import Endpoint, Environment
 if TYPE_CHECKING:
     from typing import List
 
-class Configuration:
+
+class ServicesConfiguration:
     def __init__(self, path: str) -> None:
         self.path = path
 

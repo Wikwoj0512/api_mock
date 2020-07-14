@@ -1,9 +1,11 @@
 import logging
 from typing import TYPE_CHECKING
 
-from flask import Flask
+from enum import Enum
+from flask import Flask, Response, jsonify, request
 
 from models.logger import create_logger
+from models.models_file import Environment, Response, Endpoint
 
 if TYPE_CHECKING:
     from typing import List
@@ -12,7 +14,7 @@ if TYPE_CHECKING:
 
 class Server:
     def __init__(self, host: str, port: int, endpoint_prefix: str, endpoints: 'List[Endpoint]', name: str,
-                 debug=False, logging_level = "INFO") -> None:
+                 debug=False, logging_level=logging.INFO) -> None:
         self.host = host
         self.debug = debug
         self.port = port
@@ -22,8 +24,9 @@ class Server:
         self.logging_level = logging_level
 
     @classmethod
-    def factory(cls, host: str, environment: 'Environment', debug=False, logging_level = "INFO") -> object:
-        return cls(host, environment.port, environment.endpoint_prefix, environment.endpoints, environment.name, debug, logging_level)
+    def factory(cls, host: str, environment: 'Environment', debug=False, logging_level=logging.INFO) -> object:
+        return cls(host, environment.port, environment.endpoint_prefix, environment.endpoints, environment.name, debug,
+                   logging_level)
 
     def setup(self):
         app = Flask(self.name)
@@ -44,10 +47,9 @@ class Server:
     def run(self) -> None:
         app = self.setup()
         try:
-            create_logger(self.name, level = self.logging_level)
+            create_logger(self.name, self.logging_level)
         except FileNotFoundError as e:
-            create_logger()
-            logger = logging.getLogger()
+            logger = create_logger(level=self.logging_level)
             logger.error("Invalid environment name \"%s\": %s", self.name, e)
             raise SystemExit
         app.run(self.host, self.port, self.debug)
