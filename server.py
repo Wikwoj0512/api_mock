@@ -1,11 +1,10 @@
 import logging
 from typing import TYPE_CHECKING
 
-from enum import Enum
-from flask import Flask, Response, jsonify, request
+from flask import Flask
 
 from models.logger import create_logger
-from models.models_file import Environment, Response, Endpoint
+from models.models_file import Environment, Endpoint
 
 if TYPE_CHECKING:
     from typing import List
@@ -37,7 +36,7 @@ class Server:
             methods = [response.method.value for response in responses]  # endpointy nie mogą się powtarzać ->
             # dodanie warunków zwrocenia wartości do klasy, dodawanie wielu metod do 1 endpointu
             app.add_url_rule(
-                f"/{prefix}{endpoint.endpoint}",
+                f"{f'/{prefix}' if prefix else ''}{endpoint.endpoint}",
                 endpoint.endpoint,
                 methods=methods,
                 view_func=endpoint.view_maker()

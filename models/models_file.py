@@ -1,5 +1,7 @@
 import logging
+import os
 import re
+import sys
 from enum import Enum
 from time import sleep
 from typing import TYPE_CHECKING
@@ -33,6 +35,7 @@ class ReSearching:
 
 class AppConfiguration:
     def __init__(self, mockoon_file, flask_debug, logging_level, host):
+        if mockoon_file[1] != ":": mockoon_file = os.path.join(sys.argv[1], mockoon_file)
         self.mockoon_file = mockoon_file
         self.flask_debug = flask_debug
         self.logging_level = logging_level
@@ -60,6 +63,7 @@ class AppConfiguration:
 
     @classmethod
     def fromFile(cls, path="config.yaml"):
+        if path[1] != ":": path = os.path.join(sys.argv[1], path)
         try:
             with open(path) as f:
                 config = load(f, Loader=Loader)
@@ -138,6 +142,8 @@ class Endpoint:
 
     def view_maker(self) -> object:
         def view_func(*args, **kwargs):
+            logger = create_logger()
+            logger.info(str(kwargs))
             for response in self.responses:
                 if request.method == response.method.value:
                     sleep(response.latency / 1000)
