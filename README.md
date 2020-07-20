@@ -27,6 +27,6 @@ working_directory | %~dp0 | path for config.yaml, mockoon configuration and logs
 
 To create service run createService.bat
 
-To run service type **sc start MockerService**
+To run service type **sc start MockerService** in command prompt or run it from default windows tool.
 
 Zipped package comes with python 3.7 with installed dependencies
