@@ -12,8 +12,8 @@ from models.models_file import AppConfiguration
 
 
 class HelloWorldSvc(win32serviceutil.ServiceFramework):
-    _svc_name_ = "mock-api"
-    _svc_display_name_ = "Mock API"
+    _svc_name_ = "MockerService"
+    _svc_display_name_ = "API Mocker Service"
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)

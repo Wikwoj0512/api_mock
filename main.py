@@ -11,7 +11,7 @@ from server import Server
 if TYPE_CHECKING:
     from typing import List
 
-sys.argv.append("C:\\Users\\Wiktor Wojtkowiak\\Desktop\\PROGRAMOWANIE\\praktyki")
+if len(sys.argv)==1: sys.argv.append(os.getcwd())
 
 if "logs" not in os.listdir(sys.argv[1]): os.mkdir(os.path.join(sys.argv[1], "logs"))
 

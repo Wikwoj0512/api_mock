@@ -3,7 +3,7 @@ import os
 import sys
 from typing import TYPE_CHECKING
 
-from .models_file import Endpoint, Environment
+from .models_file import Endpoint, Environment, abspath
 
 if TYPE_CHECKING:
     from typing import List
@@ -11,8 +11,7 @@ if TYPE_CHECKING:
 
 class ServicesConfiguration:
     def __init__(self, path: str) -> None:
-        if path[1] != ":": path = os.path.join(sys.argv[1], path)
-        self.path = path
+        self.path = abspath(path)
 
     def load_configuration(self) -> 'List[Environment]':
         with open(self.path, "r") as f:

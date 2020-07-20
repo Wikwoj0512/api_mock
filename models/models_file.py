@@ -19,6 +19,16 @@ from typing import List
 
 logger = logging.getLogger("main")
 
+def abspath(path:str)->str:
+    cwd = sys.argv[1]
+    if path[0]==".":
+        return os.path.join(cwd, path[1:])
+    if path[1]!=":":
+        return os.path.join(cwd, path)
+    return path
+
+
+
 
 class ReSearching:
     param_search = re.compile("(\{\{ *([A-z0-9_]+){1}( *'[A-z0-9._]+'){1} *('[\S ]+')* *\}\})")
@@ -35,8 +45,7 @@ class ReSearching:
 
 class AppConfiguration:
     def __init__(self, mockoon_file, flask_debug, logging_level, host):
-        if mockoon_file[1] != ":": mockoon_file = os.path.join(sys.argv[1], mockoon_file)
-        self.mockoon_file = mockoon_file
+        self.mockoon_file = abspath(mockoon_file)
         self.flask_debug = flask_debug
         self.logging_level = logging_level
         self.host = host
@@ -63,7 +72,7 @@ class AppConfiguration:
 
     @classmethod
     def fromFile(cls, path="config.yaml"):
-        if path[1] != ":": path = os.path.join(sys.argv[1], path)
+        path = abspath(path)
         try:
             with open(path) as f:
                 config = load(f, Loader=Loader)
