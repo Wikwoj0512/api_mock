@@ -3,14 +3,14 @@ import os
 import re
 import sys
 from enum import Enum
+from flask import request, jsonify
 from time import sleep
 from typing import TYPE_CHECKING
-
-from flask import request, jsonify
 from yaml import load, Loader
 
 from .logger import create_logger
 from .logging_levels import LOGGING_LEVELS
+from .tools import ReSearching, abspath
 
 if TYPE_CHECKING:
     from typing import List
@@ -18,29 +18,6 @@ if TYPE_CHECKING:
 from typing import List
 
 logger = logging.getLogger("main")
-
-def abspath(path:str)->str:
-    cwd = sys.argv[1]
-    if path[0]==".":
-        return os.path.join(cwd, path[1:])
-    if path[1]!=":":
-        return os.path.join(cwd, path)
-    return path
-
-
-
-
-class ReSearching:
-    param_search = re.compile("(\{\{ *([A-z0-9_]+){1}( *'[A-z0-9._]+'){1} *('[\S ]+')* *\}\})")
-    keywords_search = re.compile("(\{\{ *([A-z0-9_]+) *\}\})")
-
-    @classmethod
-    def search_keywoards(cls, string: str) -> 'List[str]':
-        return cls.keywords_search.findall(string)
-
-    @classmethod
-    def search_params(cls, string: str) -> 'List[str]':
-        return cls.param_search.findall(string)
 
 
 class AppConfiguration:
