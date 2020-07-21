@@ -1,8 +1,8 @@
 import json
-from typing import TYPE_CHECKING
-
 # from .logger import create_logger
 from logging import getLogger
+from typing import TYPE_CHECKING
+
 from .models_file import Endpoint, Environment, abspath
 
 if TYPE_CHECKING:

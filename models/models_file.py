@@ -1,14 +1,12 @@
 import logging
-import os
 import re
-import sys
 from enum import Enum
-from flask import request, jsonify
 from time import sleep
 from typing import TYPE_CHECKING
+
+from flask import request, jsonify
 from yaml import load, Loader
 
-from .logger import create_logger
 from .logging_levels import LOGGING_LEVELS
 from .tools import ReSearching, abspath
 
@@ -16,8 +14,6 @@ if TYPE_CHECKING:
     from typing import List
 
 from typing import List
-
-
 
 
 class AppConfiguration:
