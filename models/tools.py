@@ -13,7 +13,7 @@ def abspath(path: str) -> str:
 
 
 class ReSearching:
-    param_search = re.compile("(\{\{ *([A-z0-9_]+){1}( *'[A-z0-9._]+'){1} *('[\S ]+')* *\}\})")
+    param_search = re.compile("(\{\{ *([A-z0-9_]+){1}( *'[A-z0-9._-]+'){1} *('[A-z0-9._-]+')* *\}\})")
     keywords_search = re.compile("(\{\{ *([A-z0-9_]+) *\}\})")
 
     @classmethod

@@ -11,7 +11,7 @@ from models.logger import create_logger
 from models.models_file import AppConfiguration
 
 
-class HelloWorldSvc(win32serviceutil.ServiceFramework):
+class MockerServiceSvc(win32serviceutil.ServiceFramework):
     _svc_name_ = "MockerService"
     _svc_display_name_ = "API Mocker Service"
 
