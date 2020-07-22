@@ -14,7 +14,6 @@ from .tools import ReSearching, abspath
 if TYPE_CHECKING:
     from typing import List
 
-from typing import List
 
 
 class AppConfiguration:
@@ -26,7 +25,7 @@ class AppConfiguration:
 
     @classmethod
     def fromDict(cls, data: dict) -> object:
-        mockoon_file = data.get("mockoon_file", "mockoon_files/mockoon_configuration.json", )
+        mockoon_file = data.get("mockoon_file", "mockoon_files/mockoon_configuration.json")
         flask_debug = data.get("flask_debug", False)
 
         logging_level = data.get('logging_level', logging.INFO)
@@ -37,7 +36,7 @@ class AppConfiguration:
 
         host = data.get('host_addr', "0.0.0.0")
         default_keys = ["mockoon_file", "flask_debug", 'logging_level', 'host_addr']
-        logger = logging.getLogger("main")
+        logger = logging.getLogger(__name__)
         for key in default_keys:
             if key not in data.keys():
                 logger.info("Key missing: %s, loading from default", key)
@@ -51,7 +50,7 @@ class AppConfiguration:
             with open(path) as f:
                 config = load(f, Loader=Loader)
         except FileNotFoundError:
-            logger = logging.getLogger("main")
+            logger = logging.getLogger(__name__)
             logger.error("Configuration file not found. Starting from defaults")
             config = {}
         return cls.fromDict(config)
@@ -66,8 +65,8 @@ class Method(Enum):
 
 
 class Response:
-    def __init__(self, status_code: str, body: str, method: str, latency: int) -> None:
-        logger = logging.getLogger("main")
+    def __init__(self, status_code: int, body: str, method: str, latency: int) -> None:
+        logger = logging.getLogger(__name__)
         self.body = body
         self.latency = latency
         try:

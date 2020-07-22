@@ -16,8 +16,7 @@ if len(sys.argv) == 1: sys.argv.append(os.getcwd())
 if "logs" not in os.listdir(sys.argv[1]): os.mkdir(os.path.join(sys.argv[1], "logs"))
 
 
-def main(config) -> 'List[Server]':
-
+def get_servers(config) -> 'List[Server]':
     configuration = ServicesConfiguration(config.mockoon_file)
     environments = configuration.load_configuration()
     servers = [Server.factory(config.host, environment, debug=config.flask_debug, logging_level=config.logging_level)
@@ -26,16 +25,21 @@ def main(config) -> 'List[Server]':
     return servers
 
 
-def run(servers: 'List[object]') ->'List':
+def run(servers: 'List[object]') -> 'List':
     processes = [Process(target=server.run) for server in servers]
     return processes
+
+
+def main(processes: 'List[object]'):
+    [proc.start() for proc in processes]
+    [proc.join() for proc in processes]
 
 
 if __name__ == '__main__':
     config = AppConfiguration.fromFile("config.yaml")
     logger = create_logger(level=config.logging_level)
     try:
-        servers = main(config)
+        servers = get_servers(config)
     except Exception as e:
         logger.error("Undefined error in main(): %s", e)
         raise SystemExit
@@ -45,5 +49,4 @@ if __name__ == '__main__':
         logger.error("Undefined error in run(): %s", e)
         raise SystemExit
 
-    [proc.start() for proc in processes]
-    [proc.join() for proc in processes]
+    main(processes)

@@ -1,5 +1,5 @@
 import json
-# from .logger import create_logger
+
 from logging import getLogger
 from typing import TYPE_CHECKING
 
@@ -19,7 +19,7 @@ class ServicesConfiguration:
             with open(self.path, "r") as f:
                 conf = json.load(f)
         except FileNotFoundError as e:
-            logger = getLogger("main")
+            logger = getLogger(__name__)
             logger.error("File %s not found: %s", {self.path}, e)
             raise SystemExit
 
@@ -36,7 +36,8 @@ class ServicesConfiguration:
                     if endpoint.endpoint == f"/{Endpoint.adapt_route(route['endpoint'])}":
                         used = True
                         endpoint.responses.append(Endpoint.responseFromDict(route))
-                if not used: endpoints.append(Endpoint.fromDict(route))
+                if not used:
+                    endpoints.append(Endpoint.fromDict(route))
 
             environments.append(Environment.fromDict(item, endpoints))
 

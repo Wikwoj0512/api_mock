@@ -5,7 +5,7 @@ import win32event
 import win32service
 import win32serviceutil
 
-from main import main as appMain
+from main import get_servers as appMain
 from main import run as appRun
 from models.logger import create_logger
 from models.models_file import AppConfiguration
@@ -58,5 +58,5 @@ class MockerServiceSvc(win32serviceutil.ServiceFramework):
 
 if __name__ == '__main__':
     servicemanager.Initialize()
-    servicemanager.PrepareToHostSingle(HelloWorldSvc)
+    servicemanager.PrepareToHostSingle(MockerServiceSvc)
     servicemanager.StartServiceCtrlDispatcher()
