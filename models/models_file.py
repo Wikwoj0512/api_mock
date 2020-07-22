@@ -1,6 +1,7 @@
 import logging
 import re
 from enum import Enum
+from http import HTTPStatus
 from time import sleep
 from typing import TYPE_CHECKING
 
@@ -56,11 +57,6 @@ class AppConfiguration:
         return cls.fromDict(config)
 
 
-class StatusCode(Enum):
-    OK = "200"
-    NOT_FOUND = "404"
-
-
 class Method(Enum):
     GET = "GET"
     POST = "POST"
@@ -72,7 +68,7 @@ class Response:
         self.body = body
         self.latency = latency
         try:
-            self.status_code = StatusCode(status_code)
+            self.status_code = HTTPStatus(int(status_code))
         except ValueError as e:
             logger.error("Your config file passed invalid status code: %s", e)
             raise SystemExit

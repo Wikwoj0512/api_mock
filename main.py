@@ -26,7 +26,7 @@ def main(config) -> 'List[Server]':
     return servers
 
 
-def run(servers: 'List[object]') -> List:
+def run(servers: 'List[object]') ->'List':
     processes = [Process(target=server.run) for server in servers]
     return processes
 
