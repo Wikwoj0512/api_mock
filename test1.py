@@ -1,11 +1,12 @@
 import unittest
 
 try:
+    import os
+    import random
+    from flask import jsonify
     from main import get_servers
     from models.models_file import AppConfiguration
-    import os
-    from flask import jsonify
-    import random
+    from models.tools import  ReSearching
 except Exception as e:
     print(f"some modules are missing: {e}")
 
@@ -31,30 +32,32 @@ class FlaskTest(unittest.TestCase):
             tester = app.test_client()
             for endpoint in server.endpoints:
                 for response in endpoint.responses:
-                    route = server.endpoint_prefix+endpoint.endpoint
-                    if response.method.value=="GET":
+                    route = server.endpoint_prefix + endpoint.endpoint
+                    if response.method.value == "GET":
                         app_response = tester.get(route)
-                    if response.method.value=="POST":
+                    if response.method.value == "POST":
                         app_response = tester.post(route)
-                    if response.method.value=="PUT":
+                    if response.method.value == "PUT":
                         app_response = tester.put(route)
-                    if response.method.value=="DELETE":
+                    if response.method.value == "DELETE":
                         app_response = tester.delete(route)
-
 
                     self.assertEqual(response.status_code.value, app_response.status_code)
                     self.assertEqual("application/json", app_response.content_type)
 
     def test_formatting(self):
-        config = AppConfiguration.fromDict({'mockoon_file': 'mockoon_files/format_test.json', 'flask_debug': False, 'logging_level': 'INFO', 'host_addr': '0.0.0.0'})
+        config = AppConfiguration.fromDict(
+            {'mockoon_file': 'mockoon_files/format_test.json', 'flask_debug': False, 'logging_level': 'INFO',
+             'host_addr': '0.0.0.0'})
         servers = get_servers(config)
         apps = [server.setup() for server in servers]
         app = apps[0]
         tester = app.test_client()
         response = tester.get("/api?name=jakiesimie")
-        self.assertListEqual(["hostname", "ip",'lang', "method", "queryParam", "urlparam"], list(eval(response.data).keys()))
-        self.assertDictEqual({"hostname":"localhost","ip":"127.0.0.1","lang":"{en}","method":"GET","queryParam":"jakiesimie","urlparam":"api"}, eval(response.data))
-
+        self.assertListEqual(["hostname", "ip", 'lang', "method", "queryParam", "urlparam"],
+                             list(eval(response.data).keys()))
+        self.assertDictEqual({"hostname": "localhost", "ip": "127.0.0.1", "lang": "localhost", "method": "GET",
+                              "queryParam": "jakiesimie", "urlparam": "api"}, eval(response.data))
 
     def test_var_value(self):
         config = AppConfiguration.fromDict(
@@ -67,12 +70,30 @@ class FlaskTest(unittest.TestCase):
 
         allowed_signs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
         for i in range(20):
-
-            value = "".join(random.choices(allowed_signs, k= random.randint(3,20)))
+            value = "".join(random.choices(allowed_signs, k=random.randint(3, 20)))
             print(value)
             response = tester.get(f"urlparam/{value}")
             dict = eval(response.data)
-            self.assertEqual(value,dict["urlParam"])
+            self.assertEqual(value, dict["urlParam"])
+
+    def test_re_searching_kwargs(self):
+        test_cases_working = {"{{ip}}":"ip", "{{hostname      }}":"hostname"}
+        for case in test_cases_working:
+            self.assertEqual([(case, test_cases_working[case])], ReSearching.search_keywoards(case))
+        test_cases_not_working = { "{ {method}}": "method", "hostname":""}
+        for case in test_cases_not_working:
+            self.assertListEqual([], ReSearching.search_keywoards(case))
+
+    def test_re_searching_params(self):
+        test_cases_working = {"{{urlParam 'var'}}":["urlParam", "'var'",''],"{{urlParam   'var'   'siema'}}":["urlParam", "'var'","'siema'"]}
+        for case in test_cases_working:
+            self.assertEqual([(case, test_cases_working[case][0],test_cases_working[case][1], test_cases_working[case][2])], ReSearching.search_params(case))
+        test_cases_not_working = [ "{{urlParam ''var'}}", "method", "{{urlParam }}","{ {urlParam ''var'}}"]
+        for case in test_cases_not_working:
+            self.assertListEqual([], ReSearching.search_params(case))
+
+
+
 
 
 if __name__ == '__main__':

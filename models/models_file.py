@@ -95,7 +95,7 @@ class Response:
 class Endpoint:
     def __init__(self, endpoint: str, responses: "List[Response]") -> None:
         self.responses = responses
-        self.endpoint = "/" + endpoint
+        self.endpoint = f"/{endpoint}"
 
     def __repr__(self) -> str:
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
@@ -132,7 +132,7 @@ class Endpoint:
                     for param in params:
                         total = param[0]
                         type = param[1]
-                        var_name = param[2].strip()[1:-1]
+                        var_name = param[2][1:-1]
                         default = param[3][1:-1]
                         replacement=total
                         if type in param_dict: replacement = (
