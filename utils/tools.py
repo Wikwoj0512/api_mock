@@ -15,6 +15,7 @@ def abspath(path: str) -> str:
 class ReSearching:
     param_search = re.compile("(\{\{ *([A-z0-9_]+){1} *('[A-z0-9._-]+'){1} *('[A-z0-9._-]+')* *\}\})")
     keywords_search = re.compile("(\{\{ *([A-z0-9_]+) *\}\})")
+    path_search = re.compile("(:[A-z0-9_]+)")
 
     @classmethod
     def search_keywoards(cls, string: str) -> 'List[str]':
@@ -23,3 +24,7 @@ class ReSearching:
     @classmethod
     def search_params(cls, string: str) -> 'List[str]':
         return cls.param_search.findall(string)
+
+    @classmethod
+    def search_path(cls, string: str) -> 'List[str]':
+        return cls.path_search.findall(string)

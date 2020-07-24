@@ -5,9 +5,9 @@ import win32event
 import win32service
 import win32serviceutil
 
-from main import get_servers as appMain
-from main import run as appRun
-from models.logger import create_logger
+from multiprocessing import Process
+from main import main as appMain
+from utils.logger import create_logger
 from models.models_file import AppConfiguration
 
 
@@ -40,20 +40,10 @@ class MockerServiceSvc(win32serviceutil.ServiceFramework):
         self.main()
 
     def main(self):
-        config = AppConfiguration.fromFile("config.yaml")
-        logger = create_logger(level=config.logging_level)
-        try:
-            servers = appMain(config)
-        except Exception as e:
-            logger.error("Undefined error in main(): %s", e)
-        try:
-            processes = appRun(servers)
-        except Exception as e:
-            logger.error("Undefined error in run(): %s", e)
-
+        sequence = appMain()
+        processes = next(sequence)
         self.processes = processes
-        [proc.start() for proc in processes]
-        [proc.join() for proc in processes]
+        start = next(sequence)
 
 
 if __name__ == '__main__':

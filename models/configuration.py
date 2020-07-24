@@ -9,36 +9,35 @@ if TYPE_CHECKING:
     from typing import List
 
 
-class ServicesConfiguration:
-    def __init__(self, path: str) -> None:
-        self.path = abspath(path)
 
-    def load_configuration(self) -> 'List[Environment]':
-        try:
 
-            with open(self.path, "r") as f:
-                conf = json.load(f)
-        except FileNotFoundError as e:
-            logger = getLogger(__name__)
-            logger.error("File %s not found: %s", {self.path}, e)
-            raise SystemExit
+def load_configuration(path: str) -> 'List[Environment]':
+    path = abspath(path)
+    try:
 
-        data = conf["data"]
+        with open(path, "r") as f:
+            conf = json.load(f)
+    except FileNotFoundError as e:
+        logger = getLogger(__name__)
+        logger.error("File %s not found: %s", {path}, e)
+        raise SystemExit
 
-        environments = []
-        for item in data:
-            item = item["item"]
-            endpoints = []
+    data = conf["data"]
 
-            for route in item["routes"]:
-                used = False
-                for endpoint in endpoints:
-                    if endpoint.endpoint == f"/{Endpoint.adapt_route(route['endpoint'])}":
-                        used = True
-                        endpoint.responses.append(Endpoint.responseFromDict(route))
-                if not used:
-                    endpoints.append(Endpoint.fromDict(route))
+    environments = []
+    for environment in data:
+        environment = environment["item"]
+        endpoints = []
 
-            environments.append(Environment.fromDict(item, endpoints))
+        for route in environment["routes"]:
+            used = False
+            for endpoint in endpoints:
+                if endpoint.endpoint == f"/{Endpoint.adapt_route(route['endpoint'])}":
+                    used = True
+                    endpoint.responses.append(Endpoint.responseFromDict(route))
+            if not used:
+                endpoints.append(Endpoint.fromDict(route))
 
-        return environments
+        environments.append(Environment.fromDict(environment, endpoints))
+
+    return environments

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from flask import Flask
 
-from models.logger import create_logger
+from utils.logger import create_logger
 from models.models_file import Environment, Endpoint
 
 if TYPE_CHECKING:
@@ -33,8 +33,8 @@ class Server:
         for endpoint in self.endpoints:
             prefix = self.endpoint_prefix
             responses = endpoint.responses
-            methods = [response.method.value for response in responses]  # endpointy nie mogą się powtarzać ->
-            # dodanie warunków zwrocenia wartości do klasy, dodawanie wielu metod do 1 endpointu
+            methods = [response.method.value for response in responses]  # One path can not be added twice in flask, even with different methods
+            # ->adding all the endpoins for one path to flask as one endpoint with multiple responses
             app.add_url_rule(
                 f"{f'/{prefix}' if prefix else ''}{endpoint.endpoint}",
                 endpoint.endpoint,

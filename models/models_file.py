@@ -1,5 +1,4 @@
 import logging
-import re
 from enum import Enum
 from http import HTTPStatus
 from time import sleep
@@ -8,12 +7,11 @@ from typing import TYPE_CHECKING
 from flask import request, jsonify
 from yaml import load, Loader
 
-from .logging_levels import LOGGING_LEVELS
-from .tools import ReSearching, abspath
+
+from utils.tools import ReSearching, abspath
 
 if TYPE_CHECKING:
     from typing import List
-
 
 
 class AppConfiguration:
@@ -30,7 +28,7 @@ class AppConfiguration:
 
         logging_level = data.get('logging_level', logging.INFO)
         if type(logging_level) == str:
-            logging_level = LOGGING_LEVELS.get(logging_level, logging.INFO)
+            logging_level = logging._nameToLevel.get(logging_level, logging.INFO)
         if logging_level is None:
             logging_level = logging.INFO
 
@@ -70,7 +68,7 @@ class Response:
         self.body = body
         self.latency = latency
         try:
-            self.status_code = HTTPStatus(int(status_code))
+            self.status_code = HTTPStatus(status_code)
         except ValueError as e:
             logger.error("Your config file passed invalid status code: %s", e)
             raise SystemExit
@@ -85,10 +83,10 @@ class Response:
 
     @classmethod
     def fromDict(cls, data: dict, method: str) -> object:
-        body = data["body"]
-        statusCode = data["statusCode"]
+        body = data.get("body")
+        statusCode = int(data.get("statusCode"))
         method = method
-        latency = data["latency"]
+        latency = data.get("latency")
         return cls(statusCode, body, method, latency)
 
 
@@ -114,14 +112,15 @@ class Endpoint:
 
     @classmethod
     def adapt_route(cls, route: str) -> str:
-        name_allowed = "A-z0-9_"
-        params_search = re.compile(f"(:[{name_allowed}]+)")
-        params = params_search.findall(route)
+        params = ReSearching.search_path(route)
         for param in params:
             route = route.replace(param, f"<{param[1:]}>", 1)
+        # mockoon passes url Variables as ":var", and flask requires "<var>".
+        # Therefor we need to replace all ":string" with "<string>".
+        # Allowed signs in variable names are "A-z0-9_", as "-" is treated differently by mockoon and flask
         return route
 
-    def view_maker(self) -> object:
+    def view_maker(self) -> callable:
         def view_func(*args, **kwargs):
             for response in self.responses:
                 if request.method == response.method.value:
@@ -134,7 +133,7 @@ class Endpoint:
                         type = param[1]
                         var_name = param[2][1:-1]
                         default = param[3][1:-1]
-                        replacement=total
+                        replacement = total
                         if type in param_dict: replacement = (
                             param_dict[type][var_name] if var_name in param_dict[type] else default)
                         body = body.replace(total, replacement, 1)

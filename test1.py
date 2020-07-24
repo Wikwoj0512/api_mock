@@ -1,14 +1,11 @@
 import unittest
 
-try:
-    import os
-    import random
-    from flask import jsonify
-    from main import get_servers
-    from models.models_file import AppConfiguration
-    from models.tools import  ReSearching
-except Exception as e:
-    print(f"some modules are missing: {e}")
+import os
+import random
+from main import get_servers
+from models.models_file import AppConfiguration
+from utils.tools import ReSearching
+
 
 
 class FlaskTest(unittest.TestCase):
@@ -77,21 +74,23 @@ class FlaskTest(unittest.TestCase):
             self.assertEqual(value, dict["urlParam"])
 
     def test_re_searching_kwargs(self):
-        test_cases_working = {"{{ip}}":"ip", "{{hostname      }}":"hostname"}
+        test_cases_working = {"{{ip}}": "ip", "{{hostname      }}": "hostname"}
         for case in test_cases_working:
             self.assertEqual([(case, test_cases_working[case])], ReSearching.search_keywoards(case))
-        test_cases_not_working = { "{ {method}}": "method", "hostname":""}
+        test_cases_not_working = {"{ {method}}": "method", "hostname": ""}
         for case in test_cases_not_working:
             self.assertListEqual([], ReSearching.search_keywoards(case))
 
     def test_re_searching_params(self):
-        test_cases_working = {"{{urlParam 'var'}}":["urlParam", "'var'",''],"{{urlParam   'var'   'siema'}}":["urlParam", "'var'","'siema'"]}
+        test_cases_working = {"{{urlParam 'var'}}": ["urlParam", "'var'", ''],
+                              "{{urlParam   'var'   'siema'}}": ["urlParam", "'var'", "'siema'"]}
         for case in test_cases_working:
-            self.assertEqual([(case, test_cases_working[case][0],test_cases_working[case][1], test_cases_working[case][2])], ReSearching.search_params(case))
-        test_cases_not_working = [ "{{urlParam ''var'}}", "method", "{{urlParam }}","{ {urlParam ''var'}}"]
+            self.assertEqual(
+                [(case, test_cases_working[case][0], test_cases_working[case][1], test_cases_working[case][2])],
+                ReSearching.search_params(case))
+        test_cases_not_working = ["{{urlParam ''var'}}", "method", "{{urlParam }}", "{ {urlParam ''var'}}"]
         for case in test_cases_not_working:
             self.assertListEqual([], ReSearching.search_params(case))
-
 
 
 
