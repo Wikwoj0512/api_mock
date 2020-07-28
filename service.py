@@ -1,14 +1,15 @@
 import socket
 
+import sys
 import servicemanager
 import win32event
 import win32service
 import win32serviceutil
 
-from multiprocessing import Process
 from main import main as appMain
-from utils.logger import create_logger
-from models.models_file import AppConfiguration
+
+from multiprocessing import freeze_support
+
 
 
 class MockerServiceSvc(win32serviceutil.ServiceFramework):
@@ -31,7 +32,7 @@ class MockerServiceSvc(win32serviceutil.ServiceFramework):
             proc.terminate()
 
     def SvcDoRun(self):
-
+        freeze_support()
         servicemanager.LogMsg(
             servicemanager.EVENTLOG_INFORMATION_TYPE,
             servicemanager.PYS_SERVICE_STARTED,
@@ -47,6 +48,10 @@ class MockerServiceSvc(win32serviceutil.ServiceFramework):
 
 
 if __name__ == '__main__':
-    servicemanager.Initialize()
-    servicemanager.PrepareToHostSingle(MockerServiceSvc)
-    servicemanager.StartServiceCtrlDispatcher()
+    if len(sys.argv)==1:
+        freeze_support()
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(MockerServiceSvc)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(MockerServiceSvc)
