@@ -1,11 +1,10 @@
-import unittest
-
 import os
 import random
+import unittest
+
 from main import get_servers
 from models.models_file import AppConfiguration
 from utils.tools import ReSearching
-
 
 
 class FlaskTest(unittest.TestCase):
@@ -92,8 +91,19 @@ class FlaskTest(unittest.TestCase):
         for case in test_cases_not_working:
             self.assertListEqual([], ReSearching.search_params(case))
 
-
+    def test_headers(self):
+        config = AppConfiguration.fromDict(
+            {'mockoon_file': 'mockoon_files/headers_test.json', 'flask_debug': False, 'logging_level': 'INFO',
+             'host_addr': '0.0.0.0'})
+        servers = get_servers(config)
+        apps = [server.setup() for server in servers]
+        app = apps[0]
+        tester = app.test_client()
+        response = tester.get('/')
+        self.assertEqual(response.headers["Content-Type"], "application/json")
+        self.assertEqual(response.headers["Accept-Language"], "en-en")
+        self.assertEqual(response.headers["Connection"], "keep-alive")
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)

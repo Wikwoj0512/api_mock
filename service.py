@@ -6,6 +6,8 @@ import win32event
 import win32service
 import win32serviceutil
 
+
+
 from main import main as appMain
 
 from multiprocessing import freeze_support
@@ -48,10 +50,8 @@ class MockerServiceSvc(win32serviceutil.ServiceFramework):
 
 
 if __name__ == '__main__':
-    if len(sys.argv)==1:
-        freeze_support()
-        servicemanager.Initialize()
-        servicemanager.PrepareToHostSingle(MockerServiceSvc)
-        servicemanager.StartServiceCtrlDispatcher()
-    else:
-        win32serviceutil.HandleCommandLine(MockerServiceSvc)
+    freeze_support()
+    servicemanager.Initialize()
+    servicemanager.PrepareToHostSingle(MockerServiceSvc)
+    servicemanager.StartServiceCtrlDispatcher()
+

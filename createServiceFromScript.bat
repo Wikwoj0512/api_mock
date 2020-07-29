@@ -1,5 +1,5 @@
 @echo off
-set python_path=%~dp0Python\python.exe
+set python_path=py
 set service_path=%~dp0service.py
 set working_directory=%~dp0
 

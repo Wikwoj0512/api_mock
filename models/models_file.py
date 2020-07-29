@@ -4,9 +4,9 @@ from http import HTTPStatus
 from time import sleep
 from typing import TYPE_CHECKING
 
+from flask import Response as FResponse
 from flask import request, jsonify
 from yaml import load, Loader
-
 
 from utils.tools import ReSearching, abspath
 
@@ -63,10 +63,11 @@ class Method(Enum):
 
 
 class Response:
-    def __init__(self, status_code: int, body: str, method: str, latency: int) -> None:
+    def __init__(self, status_code: int, body: str, method: str, latency: int, headers: dict) -> None:
         logger = logging.getLogger(__name__)
         self.body = body
         self.latency = latency
+        self.headers = headers
         try:
             self.status_code = HTTPStatus(status_code)
         except ValueError as e:
@@ -87,23 +88,29 @@ class Response:
         statusCode = int(data.get("statusCode"))
         method = method
         latency = data.get("latency")
-        return cls(statusCode, body, method, latency)
+        headers = data.get("headers",[])
+        new_headers = {header.get("key"): header.get("value") for header in headers}
+        return cls(statusCode, body, method, latency, new_headers)
 
 
 class Endpoint:
-    def __init__(self, endpoint: str, responses: "List[Response]") -> None:
+    def __init__(self, endpoint: str, responses: "List[Response]", headers: dict) -> None:
         self.responses = responses
         self.endpoint = f"/{endpoint}"
+        self.headers = headers
 
     def __repr__(self) -> str:
         return f"Endpoint: \"{self.endpoint}\" responses: {self.responses}"
 
     @classmethod
-    def fromDict(cls, data: dict) -> object:
+    def fromDict(cls, data: dict, headers: 'List[dict]') -> object:
         endpoint = cls.adapt_route(data['endpoint'])
         response = data["responses"][0]
         responses = [Response.fromDict(response, data["method"])]
-        return cls(endpoint, responses)
+
+        new_headers = {header.get("key"): header.get("value") for header in headers}
+
+        return cls(endpoint, responses, new_headers)
 
     @classmethod
     def responseFromDict(cls, data: dict) -> object:
@@ -143,8 +150,10 @@ class Endpoint:
                         total = kwparam[0]
                         name = kwparam[1]
                         if name in kwargs_dict: body = body.replace(total, kwargs_dict[name], 1)
-                    return jsonify(eval(body)), response.status_code.value
-            return Response(status_code=404)
+                    responseheaders = self.headers
+                    responseheaders.update(response.headers)
+                    response = FResponse(body, headers=responseheaders, status=response.status_code)
+                    return response
 
         return view_func
 

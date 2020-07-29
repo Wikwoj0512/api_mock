@@ -8,11 +8,11 @@ from models.models_file import AppConfiguration
 from server import Server
 from utils.logger import create_logger
 
-import pkg_resources.py2_warn
+if len(sys.argv) == 1: sys.argv.append(os.getcwd())
+# this line assures execution with cwd as argument when running main.py as script.
 
 if TYPE_CHECKING:
     from typing import List
-
 
 
 def get_servers(config) -> 'List[Server]':

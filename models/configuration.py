@@ -36,7 +36,7 @@ def load_configuration(path: str) -> 'List[Environment]':
                     used = True
                     endpoint.responses.append(Endpoint.responseFromDict(route))
             if not used:
-                endpoints.append(Endpoint.fromDict(route))
+                endpoints.append(Endpoint.fromDict(route, environment.get("headers")))
 
         environments.append(Environment.fromDict(environment, endpoints))
 
