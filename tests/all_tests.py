@@ -8,7 +8,7 @@ from utils.tools import ReSearching
 
 
 class FlaskTest(unittest.TestCase):
-    config = AppConfiguration.fromFile(os.path.join(os.getcwd(), "config.yaml"))
+    config = AppConfiguration.fromFie(os.path.join(os.getcwd(), "config.yaml"))
     servers = get_servers(config)
     apps = [server.setup() for server in servers]
 
@@ -50,8 +50,8 @@ class FlaskTest(unittest.TestCase):
         app = apps[0]
         tester = app.test_client()
         response = tester.get("/api?name=jakiesimie")
-        self.assertListEqual(["hostname", "ip", 'lang', "method", "queryParam", "urlparam"],
-                             list(eval(response.data).keys()))
+        self.assertListEqual(sorted(["hostname", "ip", 'lang', "method", "queryParam", "urlparam"]),
+                             sorted(list(eval(response.data).keys())))
         self.assertDictEqual({"hostname": "localhost", "ip": "127.0.0.1", "lang": "localhost", "method": "GET",
                               "queryParam": "jakiesimie", "urlparam": "api"}, eval(response.data))
 

@@ -1,0 +1,90 @@
+{
+    "source": "mockoon:1.8.0",
+    "data": [
+        {
+            "type": "environment",
+            "item": {
+                "uuid": "",
+                "lastMigration": 10,
+                "name": "Test_regex",
+                "endpointPrefix": "",
+                "latency": 0,
+                "port": 8009,
+                "routes": [
+                    {
+                        "uuid": "",
+                        "documentation": "",
+                        "method": "get",
+                        "endpoint": ":var",
+                        "responses": [
+                            {
+                                "uuid": "",
+                                "body": "{\n    \"urlparam\": \"{{urlParam 'var'}}\",\n    \"method\": \"{{method}}\",\n    \"queryParam\": \"{{queryParam 'name' 'noone'}}\",\n    \"ip\": \"{{ ip }}\",\n    \"hostname\": \"{{ hostname }}\",\n    \"lang\": \"{{header 'host' 'en'}}\"\n}",
+                                "latency": 0,
+                                "statusCode": "200",
+                                "label": "",
+                                "headers": [
+                                    {
+                                        "key": "",
+                                        "value": ""
+                                    }
+                                ],
+                                "filePath": "",
+                                "sendFileAsBody": false,
+                                "rules": []
+                            }
+                        ],
+                        "enabled": true
+                    },
+                    {
+                        "uuid": "",
+                        "documentation": "",
+                        "method": "get",
+                        "endpoint": "urlparam/:var",
+                        "responses": [
+                            {
+                                "uuid": "",
+                                "body": "{\n    \"urlParam\": \"{{urlParam 'var'}}\"\n}",
+                                "latency": 0,
+                                "statusCode": "200",
+                                "label": "",
+                                "headers": [
+                                    {
+                                        "key": "",
+                                        "value": ""
+                                    }
+                                ],
+                                "filePath": "",
+                                "sendFileAsBody": false,
+                                "rules": []
+                            }
+                        ],
+                        "enabled": true
+                    }
+                ],
+                "proxyMode": false,
+                "proxyHost": "",
+                "https": false,
+                "cors": true,
+                "headers": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "proxyReqHeaders": [
+                    {
+                        "key": "",
+                        "value": ""
+                    }
+                ],
+                "proxyResHeaders": [
+                    {
+                        "key": "",
+                        "value": ""
+                    }
+                ]
+            }
+        }
+    ]
+}
