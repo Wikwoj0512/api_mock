@@ -135,20 +135,16 @@ class Endpoint:
                     body = response.body
                     param_dict = {"urlParam": kwargs, "queryParam": request.args, "header": request.headers}
                     params = ReSearching.search_params(body)
-                    for param in params:
-                        total = param[0]
-                        type = param[1]
-                        var_name = param[2][1:-1]
-                        default = param[3][1:-1]
+                    for total, type, var_name, default in params:
+                        var_name = var_name[1:-1]
+                        default = default[1:-1]
                         replacement = total
                         if type in param_dict: replacement = (
                             param_dict[type][var_name] if var_name in param_dict[type] else default)
                         body = body.replace(total, replacement, 1)
                     kwargs_dict = {"method": request.method, "hostname": request.host, "ip": request.remote_addr}
                     kwparams = ReSearching.search_keywoards(body)
-                    for kwparam in kwparams:
-                        total = kwparam[0]
-                        name = kwparam[1]
+                    for total, name in kwparams:
                         if name in kwargs_dict: body = body.replace(total, kwargs_dict[name], 1)
                     responseheaders = self.headers
                     responseheaders.update(response.headers)
