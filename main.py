@@ -2,6 +2,7 @@ import os
 import sys
 from multiprocessing import Process, freeze_support
 from typing import TYPE_CHECKING
+import logging
 
 from models.configuration import load_configuration
 from models.models_file import AppConfiguration
@@ -31,9 +32,12 @@ def main():
     except Exception as e:
         logger.error("Error in get_servers(): %s", e)
         raise SystemExit
-    processes = [Process(target=server.run) for server in servers]
+    processes = [Process(target=server.run, name=server.name) for server in servers]
     yield processes
     [proc.start() for proc in processes]
+    running_processes = [process for process in processes if process.is_alive()]
+    logger.info("Started %s servers out of %s requested: %s", len(running_processes), len(servers),
+                " ".join([process.name for process in running_processes]))
     [proc.join() for proc in processes]
     yield None
 
@@ -42,4 +46,7 @@ if __name__ == '__main__':
     freeze_support()
     sequence = main()
     processes = next(sequence)
+
+    len(processes)
     start = next(sequence)
+

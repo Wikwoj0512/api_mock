@@ -5,7 +5,7 @@ from time import sleep
 from typing import TYPE_CHECKING
 
 from flask import Response as FResponse
-from flask import request, jsonify
+from flask import request
 from yaml import load, Loader
 
 from utils.tools import ReSearching, abspath
@@ -88,7 +88,7 @@ class Response:
         statusCode = int(data.get("statusCode"))
         method = method
         latency = data.get("latency")
-        headers = data.get("headers",[])
+        headers = data.get("headers", [])
         new_headers = {header.get("key"): header.get("value") for header in headers}
         return cls(statusCode, body, method, latency, new_headers)
 

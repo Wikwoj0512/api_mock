@@ -15,7 +15,7 @@ def load_configuration(path: str) -> 'List[Environment]':
     path = abspath(path)
     try:
 
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf8") as f:
             conf = json.load(f)
     except FileNotFoundError as e:
         logger = getLogger(__name__)
