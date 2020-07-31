@@ -39,8 +39,8 @@ To set up createServiceFromScript.bat:
 Variable name | Default value | Desired value
 ---------|---------------|----------------
 python_path | py | absolute path to your python.exe (python 3.7) or console argument if python is in path
-service_path | %~dp0service.py | absolute path to local service.py file
-working_directory | %~dp0 | path for config.yaml, mockoon configuration and logs
+service_path | %cd%/service.py | absolute path to local service.py file
+working_directory | %cd% | path for config.yaml, mockoon configuration and logs
 
 
 
@@ -48,6 +48,6 @@ To set up createServiceFromExe.bat:
 
 Variable name | Default value | Desired value
 ---------|---------------|----------------
-service_path | %~dp0service.py | absolute path to service.exe file
-working_directory | %~dp0 | path for config.yaml, mockoon configuration and logs
+service_path | %cd%/service.py | absolute path to service.exe file
+working_directory | %cd% | path for config.yaml, mockoon configuration and logs
 
