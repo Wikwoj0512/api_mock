@@ -1,0 +1,4 @@
+mockoon_file: mockoon_files/mockoon_configuration.json
+flask_debug: false
+logging_level: INFO
+host_addr: 0.0.0.0
